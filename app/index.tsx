@@ -1,10 +1,44 @@
-import { StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 
 export default function Page() {
+  const [tags, setTags] = useState<string[]>(["Morty Smith", "Cool Rick"]);
+  const [inputValue, setInputValue] = useState("");
+
+  const handleAddTag = () => {
+    if (inputValue.trim() && !tags.includes(inputValue)) {
+      setTags([...tags, inputValue]);
+      setInputValue("");
+    }
+  };
+
+  const handleRemoveTag = (index: number) => {
+    setTags(tags.filter((_, i) => i !== index));
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.main}>
-        <Text style={styles.title}>Ricky and Morty</Text>
+      <View style={styles.tagContainer}>
+        {tags.map((tag, index) => (
+          <View key={index} style={styles.tag}>
+            <Text style={styles.tagText}>{tag}</Text>
+            <TouchableOpacity onPress={() => handleRemoveTag(index)}>
+              <Text style={styles.removeText}>✕</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+        <TextInput
+          style={styles.input}
+          value={inputValue}
+          onChangeText={setInputValue}
+          onSubmitEditing={handleAddTag}
+        />
       </View>
     </View>
   );
@@ -13,21 +47,46 @@ export default function Page() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "flex-start",
     alignItems: "center",
-    padding: 24,
+    padding: 10,
   },
-  main: {
+  tagContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#98A6BB",
+    borderRadius: 15,
+    padding: 2,
+    width: "90%",
+    minHeight: 50,
+  },
+  tag: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E2E8F0",
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    margin: 5,
+  },
+  tagText: {
+    fontSize: 14,
+    marginRight: 5,
+    color: "#344255",
+  },
+  removeText: {
+    fontSize: 16,
+    color: "#FFF",
+    backgroundColor: "#94A3B8",
+    borderRadius: 5,
+    padding: 5,
+  },
+  input: {
     flex: 1,
-    justifyContent: "center",
-    maxWidth: 960,
-    marginHorizontal: "auto",
-  },
-  title: {
-    fontSize: 64,
-    fontWeight: "bold",
-  },
-  subtitle: {
-    fontSize: 36,
-    color: "#38434D",
+    fontSize: 14,
+    margin: 5,
+    padding: 0,
   },
 });
