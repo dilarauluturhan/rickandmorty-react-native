@@ -1,20 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   TextInput,
   TouchableOpacity,
+  FlatList,
+  Image,
 } from "react-native";
 
 export default function Page() {
   const [tags, setTags] = useState<string[]>(["Morty Smith", "Cool Rick"]);
   const [inputValue, setInputValue] = useState("");
+  const [results, setResults] = useState<any[]>([]);
 
-  const handleAddTag = () => {
-    if (inputValue.trim() && !tags.includes(inputValue)) {
-      setTags([...tags, inputValue]);
-      setInputValue("");
+  const fetchCharacters = async (query: string) => {
+    try {
+      const response = await fetch(
+        `https://rickandmortyapi.com/api/character/?name=${query}`
+      );
+      const data = await response.json();
+      console.log("api success baby:", data);
+
+      if (data.results) {
+        setResults(data.results);
+      } else {
+        setResults([]);
+      }
+    } catch (error) {
+      console.log("api error:", error);
+      setResults([]);
+    }
+  };
+
+  useEffect(() => {
+    if (inputValue.trim().length > 0) {
+      fetchCharacters(inputValue);
+    } else {
+      setResults([]);
+    }
+  }, [inputValue]);
+
+  const handleAddTag = (name: string) => {
+    if (!tags.includes(name)) {
+      setTags([...tags, name]);
     }
   };
 
@@ -22,8 +51,26 @@ export default function Page() {
     setTags(tags.filter((_, i) => i !== index));
   };
 
+  const highlightQuery = (text: string, query: string) => {
+    const parts = text.split(new RegExp(`(${query})`, "gi"));
+    return (
+      <>
+        {parts.map((part, index) =>
+          part.toLowerCase() === query.toLowerCase() ? (
+            <Text key={index} style={styles.highlight}>
+              {part}
+            </Text>
+          ) : (
+            <Text key={index}>{part}</Text>
+          )
+        )}
+      </>
+    );
+  };
+
   return (
     <View style={styles.container}>
+      {/* Giriş ve Etiketler */}
       <View style={styles.tagContainer}>
         {tags.map((tag, index) => (
           <View key={index} style={styles.tag}>
@@ -37,9 +84,32 @@ export default function Page() {
           style={styles.input}
           value={inputValue}
           onChangeText={setInputValue}
-          onSubmitEditing={handleAddTag}
+          placeholder="Search characters"
         />
       </View>
+
+      {/* Sonuçlar */}
+      <FlatList
+        data={results}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.resultItem}
+            onPress={() => handleAddTag(item.name)}
+          >
+            <Image source={{ uri: item.image }} style={styles.characterImage} />
+            <View style={styles.characterInfo}>
+              <Text style={styles.characterName}>
+                {highlightQuery(item.name, inputValue)}
+              </Text>
+              <Text style={styles.episodeCount}>
+                {item.episode.length} Episodes
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
+        style={styles.resultsList}
+      />
     </View>
   );
 }
@@ -88,5 +158,37 @@ const styles = StyleSheet.create({
     fontSize: 14,
     margin: 5,
     padding: 0,
+  },
+  resultsList: {
+    marginTop: 10,
+  },
+  resultItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E2E8F0",
+  },
+  characterImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  },
+  characterInfo: {
+    flex: 1,
+  },
+  characterName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#344255",
+  },
+  episodeCount: {
+    fontSize: 14,
+    color: "#6B7280",
+  },
+  highlight: {
+    fontWeight: "bold",
+    color: "#1E40AF",
   },
 });
