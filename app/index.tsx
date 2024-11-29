@@ -8,37 +8,24 @@ import {
   FlatList,
   Image,
 } from "react-native";
+import { fetchCharacters } from "../api/characters";
 
 export default function Page() {
   const [tags, setTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [results, setResults] = useState<any[]>([]);
 
-  const fetchCharacters = async (query: string) => {
-    try {
-      const response = await fetch(
-        `https://rickandmortyapi.com/api/character/?name=${query}`
-      );
-      const data = await response.json();
-      console.log("api success baby:", data);
-
-      if (data.results) {
-        setResults(data.results);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (inputValue.trim().length > 0) {
+        const characters = await fetchCharacters(inputValue);
+        setResults(characters);
       } else {
         setResults([]);
       }
-    } catch (error) {
-      console.log("api error:", error);
-      setResults([]);
-    }
-  };
+    };
 
-  useEffect(() => {
-    if (inputValue.trim().length > 0) {
-      fetchCharacters(inputValue);
-    } else {
-      setResults([]);
-    }
+    fetchData();
   }, [inputValue]);
 
   const handleAddTag = (name: string) => {
