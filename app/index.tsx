@@ -10,7 +10,7 @@ import {
 } from "react-native";
 
 export default function Page() {
-  const [tags, setTags] = useState<string[]>(["Morty Smith", "Cool Rick"]);
+  const [tags, setTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [results, setResults] = useState<any[]>([]);
 
@@ -70,7 +70,6 @@ export default function Page() {
 
   return (
     <View style={styles.container}>
-      {/* Giriş ve Etiketler */}
       <View style={styles.tagContainer}>
         {tags.map((tag, index) => (
           <View key={index} style={styles.tag}>
@@ -88,7 +87,6 @@ export default function Page() {
         />
       </View>
 
-      {/* Sonuçlar */}
       <FlatList
         data={results}
         keyExtractor={(item) => item.id.toString()}
@@ -129,7 +127,7 @@ const styles = StyleSheet.create({
     borderColor: "#98A6BB",
     borderRadius: 15,
     padding: 2,
-    width: "90%",
+    width: "100%",
     minHeight: 50,
   },
   tag: {
@@ -145,6 +143,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginRight: 5,
     color: "#344255",
+    padding: 2,
   },
   removeText: {
     fontSize: 16,
@@ -161,12 +160,14 @@ const styles = StyleSheet.create({
   },
   resultsList: {
     marginTop: 10,
+    width: "100%",
   },
   resultItem: {
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
-    borderBottomWidth: 1,
+
+    borderBottomWidth: 2,
     borderBottomColor: "#E2E8F0",
   },
   characterImage: {
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
   },
   characterName: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "thin",
     color: "#344255",
   },
   episodeCount: {
@@ -189,6 +190,6 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontWeight: "bold",
-    color: "#1E40AF",
+    color: "#475569",
   },
 });
