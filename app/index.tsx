@@ -22,10 +22,11 @@ export default function Page() {
     removeTag,
     setInputValue,
     setResults,
+    selectedCharacters,
+    setSelectedCharacters,
+    loading,
+    setLoading,
   } = useCharacterStore();
-
-  const [selectedCharacters, setSelectedCharacters] = useState<string[]>([]);
-  const [laoding, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,12 +45,12 @@ export default function Page() {
 
   const toggleCharacterSelection = (characterName: string) => {
     if (selectedCharacters.includes(characterName)) {
-      setSelectedCharacters((prev) =>
-        prev.filter((name) => name !== characterName)
+      setSelectedCharacters(
+        selectedCharacters.filter((name) => name !== characterName)
       );
       removeTag(tags.indexOf(characterName));
     } else {
-      setSelectedCharacters((prev) => [...prev, characterName]);
+      setSelectedCharacters([...selectedCharacters, characterName]);
       addTag(characterName);
     }
   };
@@ -90,7 +91,7 @@ export default function Page() {
         />
       </View>
 
-      {laoding ? (
+      {loading ? (
         <View style={styles.loading}>
           <ActivityIndicator size="large" color="#0175FF" />
         </View>
