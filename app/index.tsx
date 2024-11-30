@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import { fetchCharacters } from "../api/characters";
@@ -24,12 +25,15 @@ export default function Page() {
   } = useCharacterStore();
 
   const [selectedCharacters, setSelectedCharacters] = useState<string[]>([]);
+  const [laoding, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       if (inputValue.trim().length > 0) {
+        setLoading(true);
         const characters = await fetchCharacters(inputValue);
         setResults(characters);
+        setLoading(false);
       } else {
         setResults([]);
       }
@@ -86,35 +90,44 @@ export default function Page() {
         />
       </View>
 
-      <FlatList
-        data={results}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.resultItem}
-            onPress={() => toggleCharacterSelection(item.name)}
-          >
-            <Checkbox
-              value={selectedCharacters.includes(item.name)}
-              onValueChange={() => toggleCharacterSelection(item.name)}
-              color={
-                selectedCharacters.includes(item.name) ? "#0175FF" : undefined
-              }
-              style={styles.checkbox}
-            />
-            <Image source={{ uri: item.image }} style={styles.characterImage} />
-            <View style={styles.characterInfo}>
-              <Text style={styles.characterName}>
-                {highlightQuery(item.name, inputValue)}
-              </Text>
-              <Text style={styles.episodeCount}>
-                {item.episode.length} Episodes
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
-        style={styles.resultsList}
-      />
+      {laoding ? (
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color="#0175FF" />
+        </View>
+      ) : (
+        <FlatList
+          data={results}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.resultItem}
+              onPress={() => toggleCharacterSelection(item.name)}
+            >
+              <Checkbox
+                value={selectedCharacters.includes(item.name)}
+                onValueChange={() => toggleCharacterSelection(item.name)}
+                color={
+                  selectedCharacters.includes(item.name) ? "#0175FF" : undefined
+                }
+                style={styles.checkbox}
+              />
+              <Image
+                source={{ uri: item.image }}
+                style={styles.characterImage}
+              />
+              <View style={styles.characterInfo}>
+                <Text style={styles.characterName}>
+                  {highlightQuery(item.name, inputValue)}
+                </Text>
+                <Text style={styles.episodeCount}>
+                  {item.episode.length} Episodes
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          style={styles.resultsList}
+        />
+      )}
     </View>
   );
 }
@@ -201,5 +214,10 @@ const styles = StyleSheet.create({
   },
   checkbox: {
     borderRadius: 7,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
