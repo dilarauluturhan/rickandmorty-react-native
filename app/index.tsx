@@ -9,11 +9,18 @@ import {
   Image,
 } from "react-native";
 import { fetchCharacters } from "../api/characters";
+import { useCharacterStore } from "../store/characterStore";
 
 export default function Page() {
-  const [tags, setTags] = useState<string[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const {
+    tags,
+    inputValue,
+    results,
+    addTag,
+    removeTag,
+    setInputValue,
+    setResults,
+  } = useCharacterStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,16 +34,6 @@ export default function Page() {
 
     fetchData();
   }, [inputValue]);
-
-  const handleAddTag = (name: string) => {
-    if (!tags.includes(name)) {
-      setTags([...tags, name]);
-    }
-  };
-
-  const handleRemoveTag = (index: number) => {
-    setTags(tags.filter((_, i) => i !== index));
-  };
 
   const highlightQuery = (text: string, query: string) => {
     const parts = text.split(new RegExp(`(${query})`, "gi"));
@@ -61,7 +58,7 @@ export default function Page() {
         {tags.map((tag, index) => (
           <View key={index} style={styles.tag}>
             <Text style={styles.tagText}>{tag}</Text>
-            <TouchableOpacity onPress={() => handleRemoveTag(index)}>
+            <TouchableOpacity onPress={() => removeTag(index)}>
               <Text style={styles.removeText}>✕</Text>
             </TouchableOpacity>
           </View>
@@ -80,7 +77,7 @@ export default function Page() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.resultItem}
-            onPress={() => handleAddTag(item.name)}
+            onPress={() => addTag(item.name)}
           >
             <Image source={{ uri: item.image }} style={styles.characterImage} />
             <View style={styles.characterInfo}>
