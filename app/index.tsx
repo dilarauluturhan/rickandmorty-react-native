@@ -8,6 +8,7 @@ import {
   FlatList,
   Image,
 } from "react-native";
+import Checkbox from "expo-checkbox";
 import { fetchCharacters } from "../api/characters";
 import { useCharacterStore } from "../store/characterStore";
 
@@ -22,6 +23,8 @@ export default function Page() {
     setResults,
   } = useCharacterStore();
 
+  const [selectedCharacters, setSelectedCharacters] = useState<string[]>([]);
+
   useEffect(() => {
     const fetchData = async () => {
       if (inputValue.trim().length > 0) {
@@ -34,6 +37,16 @@ export default function Page() {
 
     fetchData();
   }, [inputValue]);
+
+  const toggleCharacterSelection = (characterName: string) => {
+    if (selectedCharacters.includes(characterName)) {
+      setSelectedCharacters((prev) =>
+        prev.filter((name) => name !== characterName)
+      );
+    } else {
+      setSelectedCharacters((prev) => [...prev, characterName]);
+    }
+  };
 
   const highlightQuery = (text: string, query: string) => {
     const parts = text.split(new RegExp(`(${query})`, "gi"));
@@ -79,6 +92,14 @@ export default function Page() {
             style={styles.resultItem}
             onPress={() => addTag(item.name)}
           >
+            <Checkbox
+              value={selectedCharacters.includes(item.name)}
+              onValueChange={() => toggleCharacterSelection(item.name)}
+              color={
+                selectedCharacters.includes(item.name) ? "#0175FF" : undefined
+              }
+              style={styles.checkbox}
+            />
             <Image source={{ uri: item.image }} style={styles.characterImage} />
             <View style={styles.characterInfo}>
               <Text style={styles.characterName}>
@@ -139,7 +160,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 14,
-    margin: 5,
+    margin: 10,
     padding: 0,
   },
   resultsList: {
@@ -150,9 +171,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
-
     borderBottomWidth: 2,
     borderBottomColor: "#E2E8F0",
+    gap: 7,
   },
   characterImage: {
     width: 50,
@@ -175,5 +196,8 @@ const styles = StyleSheet.create({
   highlight: {
     fontWeight: "bold",
     color: "#475569",
+  },
+  checkbox: {
+    borderRadius: 7,
   },
 });
