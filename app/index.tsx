@@ -43,8 +43,10 @@ export default function Page() {
       setSelectedCharacters((prev) =>
         prev.filter((name) => name !== characterName)
       );
+      removeTag(tags.indexOf(characterName));
     } else {
       setSelectedCharacters((prev) => [...prev, characterName]);
+      addTag(characterName);
     }
   };
 
@@ -90,7 +92,7 @@ export default function Page() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.resultItem}
-            onPress={() => addTag(item.name)}
+            onPress={() => toggleCharacterSelection(item.name)}
           >
             <Checkbox
               value={selectedCharacters.includes(item.name)}
